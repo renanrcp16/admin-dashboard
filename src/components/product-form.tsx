@@ -7,6 +7,7 @@ import { maskNumberInput } from "@/utils/mask-number-input";
 import { Button } from "./button";
 import { useTransition } from "react";
 import { LoaderCircle } from "lucide-react";
+import { Form } from "./form";
 
 type TProductForm = {
   product?: Product;
@@ -35,15 +36,10 @@ export function ProductForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-96 flex flex-col gap-3"
-    >
-      <div className="flex gap-2">
-        <div className="flex-1 flex flex-col gap-1">
-          <label htmlFor="name" className="text-sm">
-            Name
-          </label>
+    <Form onSubmit={handleSubmit(onSubmit)} className="w-96">
+      <Form.Row>
+        <Form.Row.Column>
+          <Form.Row.Column.Label htmlFor="name">Name</Form.Row.Column.Label>
           <Input
             id="name"
             defaultValue={product?.name ?? ""}
@@ -53,22 +49,20 @@ export function ProductForm({
             {...register("name")}
           />
           {errors.name && (
-            <span className="text-red-500 text-sm">{errors.name.message}</span>
+            <Form.ErrorMessage>{errors.name.message}</Form.ErrorMessage>
           )}
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <div className="flex-1 flex flex-col gap-1">
-          <label htmlFor="price" className="text-sm">
-            Price
-          </label>
+        </Form.Row.Column>
+      </Form.Row>
+      <Form.Row>
+        <Form.Row.Column>
+          <Form.Row.Column.Label htmlFor="price">Price</Form.Row.Column.Label>
           <Input
             id="price"
             disabled={isSubmitting || formDisabled}
             defaultValue={
               product?.price
                 ? maskNumberInput(`${product.price.toFixed(2)}`)
-                : 0
+                : "0,00"
             }
             {...register("price", {
               onChange: (e) => {
@@ -77,20 +71,18 @@ export function ProductForm({
             })}
           />
           {errors.price && (
-            <span className="text-red-500 text-sm">{errors.price.message}</span>
+            <Form.ErrorMessage>{errors.price.message}</Form.ErrorMessage>
           )}
-        </div>
-        <div className="flex-1 flex flex-col gap-1">
-          <label htmlFor="stock" className="text-sm">
-            Stock
-          </label>
+        </Form.Row.Column>
+        <Form.Row.Column>
+          <Form.Row.Column.Label htmlFor="stock">Stock</Form.Row.Column.Label>
           <Input
             id="stock"
             disabled={isSubmitting || formDisabled}
             defaultValue={
               product?.stock
                 ? maskNumberInput(`${product.stock.toFixed(2)}`)
-                : 0
+                : "0,00"
             }
             {...register("stock", {
               onChange: (e) => {
@@ -99,12 +91,12 @@ export function ProductForm({
             })}
           />
           {errors.stock && (
-            <span className="text-red-500 text-sm">{errors.stock.message}</span>
+            <Form.ErrorMessage>{errors.stock.message}</Form.ErrorMessage>
           )}
-        </div>
-      </div>
+        </Form.Row.Column>
+      </Form.Row>
 
-      <div className="flex justify-end">
+      <Form.Row className=" justify-end">
         <Button disabled={isSubmitting} type="submit" className="h-8">
           {isSubmitting ? (
             <LoaderCircle size={16} className="animate-spin" />
@@ -112,7 +104,7 @@ export function ProductForm({
             "Confirm"
           )}
         </Button>
-      </div>
-    </form>
+      </Form.Row>
+    </Form>
   );
 }

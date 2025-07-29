@@ -39,7 +39,7 @@ export function Modal({ children, title, onCloseButtonClick }: TModal) {
     >
       <Wrapper
         aria-disabled={!active}
-        className="bg-gray-800 transition-all translate-y-0 opacity-100 aria-disabled:translate-y-2 aria-disabled:opacity-0 p-5"
+        className="bg-gray-800 w-fit h-fit transition-all translate-y-0 opacity-100 aria-disabled:translate-y-2 aria-disabled:opacity-0 p-5"
       >
         <div className="w-full flex justify-between items-center gap-10 border-b-[1px] border-gray-700/50 pb-1 mb-1">
           <h3>{title}</h3>

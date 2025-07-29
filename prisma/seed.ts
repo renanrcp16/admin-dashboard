@@ -12,7 +12,7 @@ async function main() {
 
   // Create Products
   const products = await Promise.all(
-    Array.from({ length: 10 }).map(() =>
+    Array.from({ length: 30 }).map(() =>
       prisma.product.create({
         data: {
           name: faker.commerce.productName(),
@@ -23,18 +23,24 @@ async function main() {
     )
   );
 
+  const currentYear = new Date().getFullYear();
+
   // Create Customers with Orders and OrderItems
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 15; i++) {
     const customer = await prisma.customer.create({
       data: {
         name: faker.person.fullName(),
-        document: faker.helpers.fromRegExp(/^\d{3}-\d{2}-\d{4}$/), // Fake SSN-like document
+        document: faker.helpers.replaceSymbols("###-##-####"),
       },
     });
 
     const order = await prisma.order.create({
       data: {
         customerId: customer.id,
+        date: faker.date.between({
+          from: new Date(currentYear, 0, 1),
+          to: new Date(currentYear, 11, 31),
+        }),
       },
     });
 

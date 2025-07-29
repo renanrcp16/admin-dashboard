@@ -1,18 +1,20 @@
 "use client";
 
-import { Product } from "@prisma/client";
+import { Customer } from "@prisma/client";
 import { Pen, Plus, Trash } from "lucide-react";
 import { useState } from "react";
-import { Modal } from "./modal";
-import { UpdateProductForm } from "./update-product-form";
-import { DeleteProductForm } from "./delete-product-form";
 import { Table } from "./table";
 import { Button } from "./button";
-import { CreateProductForm } from "./create-product-form";
+import { Modal } from "./modal";
+import { CreateCustomerForm } from "./create-customer-form";
+import { UpdateCustomerForm } from "./update-customer-form";
+import { DeleteCustomerForm } from "./delete-customer-form";
 
-export function ProductsTable({ products }: { products: Product[] }) {
-  const [productList, setProductList] = useState(products);
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+export function CustomersTable({ customers }: { customers: Customer[] }) {
+  const [customerList, setCustomerList] = useState(customers);
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    Customer | undefined
+  >();
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [updateFormVisible, setUpdateFormVisible] = useState(false);
   const [deleteFormVisible, setDeleteFormVisible] = useState(false);
@@ -33,23 +35,16 @@ export function ProductsTable({ products }: { products: Product[] }) {
         <Table.Head>
           <Table.Head.Row>
             <Table.Head.Row.Column>Name</Table.Head.Row.Column>
-            <Table.Head.Row.Column>Price</Table.Head.Row.Column>
-            <Table.Head.Row.Column>Stock</Table.Head.Row.Column>
+            <Table.Head.Row.Column>Document</Table.Head.Row.Column>
             <Table.Head.Row.Column>Actions</Table.Head.Row.Column>
           </Table.Head.Row>
         </Table.Head>
         <Table.Body>
-          {productList.map((product) => (
-            <Table.Body.Row key={product.id}>
-              <Table.Body.Row.Column>{product.name}</Table.Body.Row.Column>
+          {customerList.map((customer) => (
+            <Table.Body.Row key={customer.id}>
+              <Table.Body.Row.Column>{customer.name}</Table.Body.Row.Column>
               <Table.Body.Row.Column className="text-center">
-                {product.price.toLocaleString("pt-br", {
-                  currency: "BRL",
-                  style: "currency",
-                })}
-              </Table.Body.Row.Column>
-              <Table.Body.Row.Column className="text-center">
-                {product.stock.toLocaleString("pt-br")}
+                {customer.document}
               </Table.Body.Row.Column>
               <Table.Body.Row.Column className="w-24">
                 <div className="flex justify-center items-center gap-1 text-white">
@@ -57,7 +52,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                     icon={Pen}
                     className="hover:bg-blue-500/80 focus-within:bg-blue-500/80"
                     onClick={() => {
-                      setSelectedProduct(() => product);
+                      setSelectedCustomer(() => customer);
                       setUpdateFormVisible(() => true);
                     }}
                   />
@@ -65,7 +60,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                     icon={Trash}
                     className="hover:bg-red-500/80 focus-within:bg-red-500/80"
                     onClick={() => {
-                      setSelectedProduct(() => product);
+                      setSelectedCustomer(() => customer);
                       setDeleteFormVisible(() => true);
                     }}
                   />
@@ -80,38 +75,38 @@ export function ProductsTable({ products }: { products: Product[] }) {
         <Modal
           onCloseButtonClick={() => {
             setCreateFormVisible(() => false);
-            setSelectedProduct(() => undefined);
+            setSelectedCustomer(() => undefined);
           }}
-          title="Create Product"
+          title="Create Customer"
         >
-          <CreateProductForm
+          <CreateCustomerForm
             onFormSubmit={(data) => {
-              setProductList(() =>
-                [...productList, data].sort((a, b) =>
+              setCustomerList(() =>
+                [...customerList, data].sort((a, b) =>
                   a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
                 )
               );
 
               setCreateFormVisible(() => false);
-              setSelectedProduct(() => undefined);
+              setSelectedCustomer(() => undefined);
             }}
           />
         </Modal>
       )}
 
-      {selectedProduct && updateFormVisible && (
+      {selectedCustomer && updateFormVisible && (
         <Modal
           onCloseButtonClick={() => {
             setUpdateFormVisible(() => false);
-            setSelectedProduct(() => undefined);
+            setSelectedCustomer(() => undefined);
           }}
-          title="Update Product"
+          title="Update Customer"
         >
-          <UpdateProductForm
-            product={selectedProduct}
+          <UpdateCustomerForm
+            customer={selectedCustomer}
             onFormSubmit={(id, data) => {
-              setProductList(() =>
-                productList
+              setCustomerList(() =>
+                customerList
                   .map((p) => {
                     if (p.id === id) {
                       return {
@@ -128,27 +123,26 @@ export function ProductsTable({ products }: { products: Product[] }) {
               );
 
               setUpdateFormVisible(() => false);
-              setSelectedProduct(() => undefined);
+              setSelectedCustomer(() => undefined);
             }}
           />
         </Modal>
       )}
 
-      {selectedProduct && deleteFormVisible && (
+      {selectedCustomer && deleteFormVisible && (
         <Modal
           onCloseButtonClick={() => {
             setDeleteFormVisible(() => false);
-            setSelectedProduct(() => undefined);
+            setSelectedCustomer(() => undefined);
           }}
-          title="Delete Product"
+          title="Delete Customer"
         >
-          <DeleteProductForm
-            product={selectedProduct}
+          <DeleteCustomerForm
+            customer={selectedCustomer}
             onFormSubmit={(id) => {
-              setProductList(() => productList.filter((p) => p.id !== id));
-
+              setCustomerList(() => customerList.filter((p) => p.id !== id));
               setDeleteFormVisible(() => false);
-              setSelectedProduct(() => undefined);
+              setSelectedCustomer(() => undefined);
             }}
           />
         </Modal>

@@ -5,7 +5,7 @@ export function Wrapper({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={twMerge(
-        "bg-gray-800/70 p-3 rounded-lg flex flex-col shadow-md",
+        "bg-gray-800/70 p-3 rounded-lg flex flex-col shadow-md w-full h-full overflow-auto",
         className
       )}
       {...props}

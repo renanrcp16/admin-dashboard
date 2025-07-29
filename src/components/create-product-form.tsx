@@ -1,31 +1,29 @@
 "use client";
 
-import { Product } from "@prisma/client";
 import { ProductForm } from "./product-form";
-import { updateProduct } from "@/actions/update-product";
-import { TProductSchema } from "@/schemas/product.schema";
+import { createProduct } from "@/actions/create-product";
 import { toastListStore } from "@/zustand/toast-list";
+import { Product } from "@prisma/client";
 
-export function UpdateProductForm({
-  product,
+export function CreateProductForm({
   onFormSubmit,
 }: {
-  product: Product;
-  onFormSubmit: (id: string, data: TProductSchema) => void;
+  onFormSubmit: (data: Product) => void;
 }) {
   const { add } = toastListStore();
+
   return (
     <ProductForm
-      product={product}
       onFormSubmit={async (data) => {
-        await updateProduct(product.id, data)
-          .then(() => {
+        await createProduct(data)
+          .then((customer) => {
             add({
               title: "Success",
-              message: "Product has been successfully updated",
+              message: "Product has been successfully created",
               style: "success",
             });
-            onFormSubmit(product.id, data);
+
+            onFormSubmit({ ...data, id: customer.id });
           })
           .catch((err) => {
             add({

@@ -1,31 +1,31 @@
 "use client";
 
-import { Product } from "@prisma/client";
-import { ProductForm } from "./product-form";
-import { deleteProduct } from "@/actions/delete-product";
+import { Customer } from "@prisma/client";
+import { CustomerForm } from "./customer-form";
+import { deleteCustomer } from "@/actions/delete-customer";
 import { toastListStore } from "@/zustand/toast-list";
 
-export function DeleteProductForm({
-  product,
+export function DeleteCustomerForm({
+  customer,
   onFormSubmit,
 }: {
-  product: Product;
+  customer: Customer;
   onFormSubmit: (id: string) => void;
 }) {
   const { add } = toastListStore();
   return (
-    <ProductForm
-      product={product}
+    <CustomerForm
+      customer={customer}
       formDisabled
       onFormSubmit={async () => {
-        await deleteProduct(product.id)
+        await deleteCustomer(customer.id)
           .then(() => {
             add({
               title: "Success",
-              message: "Product has been successfully removed",
+              message: "Customer has been successfully removed",
               style: "success",
             });
-            onFormSubmit(product.id);
+            onFormSubmit(customer.id);
           })
           .catch((err) => {
             add({

@@ -22,7 +22,7 @@ model Product {
 model Customer {
   id        String   @id @default(cuid())
   name      String
-  document  String
+  document  String   @unique
   createdAt DateTime @default(now()) @ignore
   updatedAt DateTime @default(now()) @updatedAt @ignore
   orders    Order[]
@@ -32,6 +32,7 @@ model Customer {
 
 model Order {
   id         Int         @id @default(autoincrement())
+  date       DateTime
   customerId String
   createdAt  DateTime    @default(now()) @ignore
   updatedAt  DateTime    @default(now()) @updatedAt @ignore

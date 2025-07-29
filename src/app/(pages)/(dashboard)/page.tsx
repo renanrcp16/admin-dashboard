@@ -1,13 +1,14 @@
 import { Breadcrumb } from "@/components/breadcrumb";
+import { Main } from "@/components/main";
 import { Wrapper } from "@/components/wrapper";
 
 export default async function DashboardPage() {
   return (
-    <main className="w-full flex flex-col gap-3">
+    <Main>
       <Breadcrumb>
         <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
       </Breadcrumb>
-      <Wrapper className="w-full h-full justify-center"></Wrapper>
-    </main>
+      <Wrapper></Wrapper>
+    </Main>
   );
 }
