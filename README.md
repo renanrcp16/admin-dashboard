@@ -51,26 +51,18 @@ DATABASE_URL='file:./dev.db'
 ### 1. Generate Prisma client
 
 ```
-npm prisma generate
-```
-
-### 2. Apply migrations
-
-```
-npm prisma migrate dev --name init
+npx prisma db push
 ```
 
 This creates and applies the initial database schema using SQLite.
 
-### 3. Seed the database
+### 2. Seed the database
 
 To populate the database with mock data:
 
 ```
 npx prisma db seed
 ```
-
-Ensure that `prisma/seed.ts` exists and exports a valid seed function.
 
 ---
 
@@ -79,7 +71,7 @@ Ensure that `prisma/seed.ts` exists and exports a valid seed function.
 To start the development server with **Turbopack**:
 
 ```
-npm dev
+npm run dev
 ```
 
 Open your browser at: [http://localhost:3000](http://localhost:3000)
@@ -91,7 +83,7 @@ Open your browser at: [http://localhost:3000](http://localhost:3000)
 To build the app for production:
 
 ```
-npm build
+npm run build
 ```
 
 Then to run it:
@@ -106,10 +98,10 @@ npm start
 
 | Command                  | Description                         |
 | ------------------------ | ----------------------------------- |
-| `npm dev`                | Starts dev server with Turbopack    |
-| `npm build`              | Builds the production application   |
+| `npm run dev`            | Starts dev server with Turbopack    |
+| `npm run build`          | Builds the production application   |
+| `npm run lint`           | Runs ESLint for code quality checks |
 | `npm start`              | Starts the production server        |
-| `npm lint`               | Runs ESLint for code quality checks |
 | `npm prisma generate`    | Generates the Prisma client         |
 | `npm prisma migrate dev` | Applies migrations to the database  |
 | `npx prisma db seed`     | Seeds the database with mock data   |
