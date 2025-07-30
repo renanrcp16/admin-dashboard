@@ -25,7 +25,7 @@ function BreadcrumbItem({
         aria-disabled={disabled || !href}
         tabIndex={disabled || !href ? -1 : undefined}
         className={twMerge(
-          "p-1.5 hover:bg-gray-700 transition-colors rounded-lg inline-block aria-disabled:pointer-events-none outline-none focus-within:bg-gray-600/50",
+          "p-1.5 hover:bg-gray-700 transition-colors rounded-lg inline-block aria-disabled:pointer-events-none outline-none focus-visible:bg-gray-600/50",
           className
         )}
         {...props}

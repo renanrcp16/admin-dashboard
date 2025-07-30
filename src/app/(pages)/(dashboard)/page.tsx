@@ -8,7 +8,9 @@ export default async function DashboardPage() {
       <Breadcrumb>
         <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
       </Breadcrumb>
-      <Wrapper></Wrapper>
+      <Wrapper className="justify-center items-center text-3xl text-gray-500">
+        In development...
+      </Wrapper>
     </Main>
   );
 }

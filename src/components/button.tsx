@@ -6,7 +6,7 @@ export function Button({ className, ...props }: ComponentProps<"button">) {
     <button
       type="button"
       className={twMerge(
-        "p-1.5 min-w-20 text-sm flex justify-center items-center gap-2 outline-none bg-teal-600 rounded-md cursor-pointer hover:brightness-95 active:brightness-90 transition-all disabled:opacity-60 select-none focus-within:brightness-90",
+        "p-1.5 min-w-20 text-sm flex justify-center items-center gap-2 outline-none bg-teal-600 rounded-md cursor-pointer hover:brightness-95 active:brightness-90 transition-all disabled:opacity-60 select-none focus-visible:brightness-90",
         className
       )}
       {...props}

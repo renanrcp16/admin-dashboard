@@ -13,7 +13,7 @@ export function Select({
   return (
     <select
       className={twMerge(
-        "bg-gray-700/50 focus-within:bg-gray-700 h-8 p-1.5 rounded text-white text-sm outline-none  transition-colors w-full disabled:opacity-60 border-r-4 border-transparent",
+        "bg-gray-700/50 focus-visible:bg-gray-700 h-8 p-1.5 rounded text-white text-sm outline-none  transition-colors w-full disabled:opacity-60 border-r-4 border-transparent select-none",
         className
       )}
       {...props}

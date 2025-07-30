@@ -1,6 +1,6 @@
 "use client";
 
-import { Customer, Order, Product } from "@prisma/client";
+import { Customer, Product } from "@prisma/client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./button";
@@ -14,27 +14,62 @@ import { LinkButton } from "./link-button";
 import { getProducts } from "@/actions/get-products";
 import { maskNumberInput } from "@/utils/mask-number-input";
 import { Form } from "./form";
+import { formatToNumberZodSchema } from "@/utils/format-to-number-zod-schema";
+import { TGetOrder } from "@/actions/get-order";
 
 type TOrderForm = {
-  order?: Order;
+  order?: TGetOrder;
   formDisabled?: boolean;
   onFormSubmit: (order: TOrderSchema) => void;
 };
 
+type OrderCustomers = Pick<Customer, "id" | "name">;
+type OrderProducts = Pick<Product, "id" | "name" | "price">;
+
 export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
+  const [disabledSelect, setDisabledSelect] = useState(true);
+  const defaultCustomer: OrderCustomers | undefined = order
+    ? {
+        id: order.customer.id,
+        name: order.customer.name,
+      }
+    : undefined;
+
+  const defaultProducts: OrderProducts[] = order
+    ? order.items.map((i) => ({
+        id: i.product.id,
+        name: i.product.name,
+        price: 0,
+      }))
+    : [];
+
+  const defaultItems = order?.items.map((item) => ({
+    price: maskNumberInput(`${item.price.toFixed(2)}`),
+    productId: item.product.id ?? "",
+    qty: maskNumberInput(`${item.qty.toFixed(2)}`),
+    total: maskNumberInput(`${item.total.toFixed(2)}`),
+  })) || [{ price: "0,00", productId: "", qty: "0,00", total: "0,00" }];
+
   const firstRender = useRef(true);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [customers, setCustomers] = useState<OrderCustomers[]>(
+    defaultCustomer ? [defaultCustomer] : []
+  );
+  const [products, setProducts] = useState<OrderProducts[]>(defaultProducts);
   const [isSubmitting, startSubmit] = useTransition();
+  const defaultDate = order?.date || new Date();
   const {
     handleSubmit,
     register,
+    getValues,
+    setValue,
     formState: { errors },
     control,
   } = useForm({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      items: [{}, {}],
+      customerId: order?.customer.id || "",
+      date: defaultDate.toLocaleDateString("en-ca"),
+      items: defaultItems,
     },
   });
 
@@ -47,19 +82,46 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
     if (firstRender.current) {
       firstRender.current = false;
 
-      getCustomers().then((data) => {
-        setCustomers(() => data);
-      });
+      (async () => {
+        await Promise.all([
+          getCustomers().then((data) => {
+            setCustomers(() => data.map((c) => ({ id: c.id, name: c.name })));
+          }),
 
-      getProducts().then((data) => {
-        setProducts(() => data);
-      });
+          getProducts().then((data) => {
+            setProducts(() =>
+              data.map((p) => ({ id: p.id, name: p.name, price: p.price }))
+            );
+          }),
+        ]);
+
+        setDisabledSelect(() => false);
+      })();
     }
   }, []);
 
-  function onSubmit(data: any) {
+  function onSubmit(data: TOrderSchema) {
     startSubmit(() => {
-      onFormSubmit(data);
+      onFormSubmit({
+        ...data,
+        date: new Date(
+          data.date.getFullYear(),
+          data.date.getMonth(),
+          data.date.getDate() + 1
+        ),
+      });
+    });
+  }
+
+  function getTotal(qtyString: string, priceString: string) {
+    const qty = formatToNumberZodSchema(qtyString);
+    const price = formatToNumberZodSchema(priceString);
+
+    const total = qty * price;
+
+    return total.toLocaleString("pt-br", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
     });
   }
 
@@ -73,8 +135,7 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
           <Select
             id="customerId"
             {...register("customerId")}
-            defaultValue={""}
-            disabled={customers.length == 0}
+            disabled={customers.length == 0 || disabledSelect || formDisabled}
           >
             {customers.map((customer) => (
               <Select.Option key={customer.id} value={customer.id}>
@@ -92,10 +153,6 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
             id="date"
             disabled={isSubmitting || formDisabled}
             type="date"
-            defaultValue={
-              order?.date.toLocaleDateString("en-ca") ??
-              new Date().toLocaleDateString("en-ca")
-            }
             {...register("date")}
           />
           {errors.date && (
@@ -104,39 +161,68 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
         </Form.Row.Column>
       </Form.Row>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={() =>
-            items.append({
-              productId: "",
-              qty: "0,00",
-              price: "0,00",
-            })
-          }
-        >
-          Add row <Plus size={16} />
-        </Button>
-      </div>
+      {!formDisabled && (
+        <div className="flex justify-end">
+          <Button
+            onClick={() =>
+              items.append({
+                productId: "",
+                qty: "0,00",
+                price: "0,00",
+                total: "0,00",
+              })
+            }
+          >
+            Add row <Plus size={16} />
+          </Button>
+        </div>
+      )}
 
-      <table className="rounded bg-gray-700/30 w-full text-sm">
-        <thead>
-          <tr>
-            <th className="p-2">Product</th>
-            <th className="p-2">Quantity</th>
-            <th className="p-2">Price</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.fields.map((field, index) => (
-            <tr key={field.id}>
-              {/* Product select */}
-              <td className="p-1">
-                <div className="h-13 flex flex-col gap-1">
+      <div className="max-h-96 overflow-auto">
+        <table className="rounded-lg bg-gray-700/30 w-full text-sm">
+          <thead>
+            <tr className="[&>th]:p-1.5">
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+              {!formDisabled && <th></th>}
+            </tr>
+          </thead>
+          <tbody>
+            {items.fields.map((field, index) => (
+              <tr
+                key={field.id}
+                className="[&>td]:px-1 [&>td]:pb-1.5 [&>td]:first:pl-2"
+              >
+                <td>
                   <Select
                     {...register(`items.${index}.productId` as const)}
-                    defaultValue={field.productId ?? ""}
-                    disabled={formDisabled || products.length === 0}
+                    data-error={
+                      errors.items && !!errors.items[index]?.productId?.message
+                    }
+                    className="data-[error=true]:ring-1 ring-red-500/60"
+                    disabled={
+                      formDisabled || products.length === 0 || disabledSelect
+                    }
+                    onChange={(e) => {
+                      const p = products.find((p) => p.id == e.target.value);
+
+                      if (p) {
+                        setValue(
+                          `items.${index}.price`,
+                          maskNumberInput(`${p.price}`)
+                        );
+
+                        const qty = getValues(`items.${index}.qty`);
+                        const total = getTotal(
+                          qty,
+                          maskNumberInput(`${p.price}`)
+                        );
+
+                        setValue(`items.${index}.total`, total);
+                      }
+                    }}
                   >
                     {products.map((product) => (
                       <Select.Option key={product.id} value={product.id}>
@@ -144,84 +230,67 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
                       </Select.Option>
                     ))}
                   </Select>
-                  {errors.items?.[index]?.productId && (
-                    <p className="text-red-500 text-xs">
-                      {errors.items[index]?.productId?.message}
-                    </p>
-                  )}
-                </div>
-              </td>
-
-              {/* Quantity input */}
-              <td className="p-1 w-36">
-                <div className="h-13 flex flex-col gap-1">
+                </td>
+                <td className="w-32">
                   <Input
-                    defaultValue={"0,00"}
+                    disabled={formDisabled}
+                    data-error={
+                      errors.items && !!errors.items[index]?.qty?.message
+                    }
+                    className="data-[error=true]:ring-1 ring-red-500/60"
                     {...register(`items.${index}.qty`, {
                       onChange: (e) => {
-                        e.target.value = maskNumberInput(e.target.value);
+                        const qty = maskNumberInput(e.target.value);
+                        const price = getValues(`items.${index}.price`);
+                        e.target.value = qty;
+
+                        const total = getTotal(qty, price);
+
+                        setValue(`items.${index}.total`, total);
                       },
                     })}
-                    disabled={formDisabled}
                   />
-                  {errors.items?.[index]?.qty && (
-                    <p className="text-red-500 text-xs">
-                      {errors.items[index]?.qty?.message}
-                    </p>
-                  )}
-                </div>
-              </td>
-
-              <td className="p-1 w-36">
-                <div className="h-13 flex flex-col gap-1">
+                </td>
+                <td className="w-32">
                   <Input
-                    defaultValue={"0,00"}
+                    disabled={formDisabled}
+                    data-error={
+                      errors.items && !!errors.items[index]?.price?.message
+                    }
+                    className="data-[error=true]:ring-1 ring-red-500/60"
                     {...register(`items.${index}.price`, {
                       onChange: (e) => {
-                        e.target.value = maskNumberInput(e.target.value);
+                        const price = maskNumberInput(e.target.value);
+                        const qty = getValues(`items.${index}.qty`);
+                        e.target.value = price;
+
+                        const total = getTotal(qty, price);
+
+                        setValue(`items.${index}.total`, total);
                       },
                     })}
-                    disabled={formDisabled}
                   />
-                  {errors.items?.[index]?.price && (
-                    <p className="text-red-500 text-xs">
-                      {errors.items[index]?.price?.message}
-                    </p>
-                  )}
-                </div>
-              </td>
-
-              <td className="p-1 w-12 h-13">
-                <div className="flex justify-center h-12">
-                  <button
-                    type="button"
-                    onClick={() => items.remove(index)}
-                    disabled={items.fields.length == 1}
-                    className={
-                      "p-1.5 flex bg-gray-700/50 enabled:cursor-pointer text-gray-300 justify-center items-center rounded-lg hover:text-white enabled:hover:bg-gray-500/80 transition-colors disabled:opacity-60 h-fit"
-                    }
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="flex justify-end">
-        <Button
-          onClick={() =>
-            items.append({
-              productId: "",
-              qty: "0,00",
-              price: "0,00",
-            })
-          }
-        >
-          Add row <Plus size={16} />
-        </Button>
+                </td>
+                <td className="w-32">
+                  <Input {...register(`items.${index}.total`)} readOnly />
+                </td>
+                {!formDisabled && (
+                  <td className="w-12">
+                    <div className="flex justify-center">
+                      <Button
+                        disabled={items.fields.length === 1}
+                        onClick={() => items.remove(index)}
+                        className="bg-red-600/40 min-w-0"
+                      >
+                        <X size={16} />
+                      </Button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="flex justify-between mt-auto">
@@ -230,15 +299,11 @@ export function OrderForm({ order, formDisabled, onFormSubmit }: TOrderForm) {
           disabled={isSubmitting}
           className="bg-gray-700"
         >
-          {isSubmitting ? (
-            <LoaderCircle size={16} className="animate-spin" />
-          ) : (
-            "Cancel"
-          )}
+          Cancel
         </LinkButton>
-        <Button disabled={isSubmitting} type="submit">
+        <Button disabled={isSubmitting} type="submit" className="h-8">
           {isSubmitting ? (
-            <LoaderCircle size={16} className="animate-spin" />
+            <LoaderCircle size={16} className="animate-spin " />
           ) : (
             "Confirm"
           )}

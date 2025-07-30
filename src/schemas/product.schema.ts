@@ -1,4 +1,4 @@
-import { formatToNumberZodSchema } from "@/utils/validate-number-zod-schema";
+import { formatToNumberZodSchema } from "@/utils/format-to-number-zod-schema";
 import z from "zod";
 
 export const productSchema = z.object({
@@ -27,11 +27,9 @@ export const productSchema = z.object({
       return formatToNumberZodSchema(arg);
     })
     .pipe(
-      z
-        .number()
-        .gte(0, {
-          error: ({ minimum }) => `It must be over or equal to ${minimum}`,
-        })
+      z.number().gte(0, {
+        error: ({ minimum }) => `It must be over or equal to ${minimum}`,
+      })
     ),
 });
 

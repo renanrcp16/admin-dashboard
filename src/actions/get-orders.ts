@@ -1,24 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-
-export type TGetOrder = {
-  id: number;
-  date: Date;
-  customer: {
-    id: string;
-    name: string;
-  };
-  items: {
-    id: number;
-    productId: string;
-    qty: number;
-    price: number;
-  }[];
-};
+import { formatToNumberZodSchema } from "@/utils/format-to-number-zod-schema";
+import { TGetOrder } from "./get-order";
 
 export async function getOrders(): Promise<TGetOrder[]> {
-  const orders: TGetOrder[] = await prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     orderBy: { id: "desc" },
     select: {
       id: true,
@@ -31,8 +18,12 @@ export async function getOrders(): Promise<TGetOrder[]> {
       },
       items: {
         select: {
-          id: true,
-          productId: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           qty: true,
           price: true,
         },
@@ -40,5 +31,30 @@ export async function getOrders(): Promise<TGetOrder[]> {
     },
   });
 
-  return orders;
+  const mappedOrders: TGetOrder[] = orders.map((order) => {
+    const totalPrice = order.items
+      .reduce((sum, item) => sum + item.price * item.qty, 0)
+      .toLocaleString("pt-br", {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      });
+    const totalQty = order.items
+      .reduce((sum, item) => sum + item.qty, 0)
+      .toLocaleString("pt-br", {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      });
+
+    return {
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        total: item.qty * item.price,
+      })),
+      totalPrice: formatToNumberZodSchema(totalPrice),
+      totalQty: formatToNumberZodSchema(totalQty),
+    };
+  });
+
+  return mappedOrders;
 }

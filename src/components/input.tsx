@@ -6,7 +6,7 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
     <input
       type="text"
       className={twMerge(
-        "bg-gray-700/50 p-1.5 rounded text-white text-sm outline-none focus-within:bg-gray-700/70 transition-colors w-full disabled:opacity-60",
+        "bg-gray-700/50 p-1.5 rounded text-white text-sm outline-none focus-visible:bg-gray-700/70 transition-colors w-full disabled:opacity-60 read-only:opacity-60",
         className
       )}
       {...props}

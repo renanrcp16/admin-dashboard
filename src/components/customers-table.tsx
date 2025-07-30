@@ -50,7 +50,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
                 <div className="flex justify-center items-center gap-1 text-white">
                   <Table.Body.Row.Column.Action
                     icon={Pen}
-                    className="hover:bg-blue-500/80 focus-within:bg-blue-500/80"
+                    className="hover:bg-blue-500/80 focus-visible:bg-blue-500/80"
                     onClick={() => {
                       setSelectedCustomer(() => customer);
                       setUpdateFormVisible(() => true);
@@ -58,7 +58,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
                   />
                   <Table.Body.Row.Column.Action
                     icon={Trash}
-                    className="hover:bg-red-500/80 focus-within:bg-red-500/80"
+                    className="hover:bg-red-500/80 focus-visible:bg-red-500/80"
                     onClick={() => {
                       setSelectedCustomer(() => customer);
                       setDeleteFormVisible(() => true);

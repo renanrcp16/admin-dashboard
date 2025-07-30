@@ -14,7 +14,7 @@ function SidebarItem({
     <li>
       <Link
         className={twMerge(
-          "p-2 rounded-lg hover:bg-gray-700/80 w-40 flex items-center gap-2 transition-colors text-[.9rem] outline-none focus-within:bg-gray-700/80",
+          "p-2 rounded-lg hover:bg-gray-700/80 w-40 flex items-center gap-2 transition-colors text-[.9rem] outline-none focus-visible:bg-gray-700/80",
           className
         )}
         href={href}

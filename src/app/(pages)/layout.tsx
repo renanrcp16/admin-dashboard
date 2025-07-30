@@ -54,7 +54,7 @@ export default function PagesLayout({
             <Sidebar.List.Item
               icon={LogOut}
               href="/auth/sign-out"
-              className="text-red-500 hover:bg-red-500/15 focus-within:bg-red-500/15"
+              className="text-red-500 hover:bg-red-500/15 focus-visible:bg-red-500/15"
             >
               Sign Out
             </Sidebar.List.Item>

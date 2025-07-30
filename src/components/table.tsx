@@ -76,7 +76,7 @@ function TableBodyColumnAction({
       type="button"
       onClick={onClick}
       className={twMerge(
-        "p-1.5 flex bg-gray-700/50 cursor-pointer text-gray-300 justify-center items-center rounded-lg hover:text-white hover:bg-gray-500/80 transition-colors outline-none focus-within:bg-gray-500/80 focus-within:text-white",
+        "p-1.5 flex bg-gray-700/50 cursor-pointer text-gray-300 justify-center items-center rounded-lg hover:text-white hover:bg-gray-500/80 transition-colors outline-none focus-visible:bg-gray-500/80 focus-visible:text-white",
         className
       )}
       {...props}
