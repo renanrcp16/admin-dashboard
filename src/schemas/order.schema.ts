@@ -1,45 +1,27 @@
 import { formatToNumberZodSchema } from "@/utils/format-to-number-zod-schema";
 import { z } from "zod";
 
+const numberLike = z.union([z.string(), z.number()]).transform((arg) => {
+  const parsed = typeof arg === "string" ? formatToNumberZodSchema(arg) : arg;
+  if (isNaN(parsed)) throw new Error("Invalid number");
+  return parsed;
+});
+
 const orderItemSchema = z.object({
   productId: z.cuid("Required"),
-  qty: z
-    .string()
-    .refine((arg) => {
-      const str = formatToNumberZodSchema(arg);
-      return !isNaN(str);
-    }, "Invalid number format")
-    .transform((arg) => {
-      return formatToNumberZodSchema(arg);
+  qty: numberLike.pipe(
+    z.number().gt(0, {
+      error: ({ minimum }) => `Quantity must be greater than ${minimum}`,
     })
-    .pipe(
-      z.number().gte(0, {
-        error: ({ minimum }) => `It must be over or equal to ${minimum}`,
+  ),
+  price: numberLike.pipe(
+    z
+      .number()
+      .gt(0, {
+        error: ({ minimum }) => `Price must be greater than ${minimum}`,
       })
-    ),
-  price: z
-    .string()
-    .refine((arg) => {
-      const str = formatToNumberZodSchema(arg);
-      return !isNaN(str);
-    }, "Invalid number format")
-    .transform((arg) => {
-      return formatToNumberZodSchema(arg);
-    })
-    .pipe(
-      z
-        .number()
-        .gt(0, { error: ({ minimum }) => `It must be over to ${minimum}` })
-    ),
-  total: z
-    .string()
-    .refine((arg) => {
-      const str = formatToNumberZodSchema(arg);
-      return !isNaN(str);
-    }, "Invalid number format")
-    .transform((arg) => {
-      return formatToNumberZodSchema(arg);
-    }),
+  ),
+  total: numberLike,
 });
 
 export const orderSchema = z.object({

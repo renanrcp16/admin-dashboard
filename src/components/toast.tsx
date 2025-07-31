@@ -20,7 +20,7 @@ export function Toast({
     <div
       data-style={style}
       className={twMerge(
-        "w-72 text-white z-50 rounded-lg p-2 text-sm shadow-md bg-gray-700/80 backdrop-blur-sm border-l-8 data-[style=default]:border-gray-700 data-[style=success]:border-green-500 data-[style=error]:border-red-500",
+        "w-96 text-white z-50 rounded-lg p-2 text-sm shadow-md bg-gray-700/80 backdrop-blur-sm border-l-8 data-[style=default]:border-gray-700 data-[style=success]:border-green-500 data-[style=error]:border-red-500",
         className
       )}
     >
@@ -36,7 +36,9 @@ export function Toast({
         </button>
       </div>
 
-      <p className="line-clamp-2 ">{message}</p>
+      <p className="line-clamp-2" title={message}>
+        {message}
+      </p>
     </div>
   );
 }

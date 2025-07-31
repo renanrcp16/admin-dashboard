@@ -48,18 +48,18 @@ export default async function DashboardPage() {
       <Wrapper className="gap-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <KpiCard
-            label="Faturamento Anual"
+            label="Annual Revenue"
             value={totalRevenue.toLocaleString("pt-br", {
               currency: "BRL",
               style: "currency",
             })}
           />
           <KpiCard
-            label="Itens Vendidos"
+            label="Items Sold"
             value={totalItemsSold.toLocaleString("pt-br", { currency: "BRL" })}
           />
-          <KpiCard label="Ticket Médio" value={averageTicket} />
-          <KpiCard label="Total de Pedidos" value={filteredOrders.length} />
+          <KpiCard label="Average Ticket" value={averageTicket} />
+          <KpiCard label="Total Orders" value={filteredOrders.length} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

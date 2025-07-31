@@ -1,8 +1,8 @@
 "use client";
 
 import { Breadcrumb } from "@/components/breadcrumb";
+import { CreateOrderForm } from "@/components/create-order-form";
 import { Main } from "@/components/main";
-import { OrderForm } from "@/components/order-form";
 import { Wrapper } from "@/components/wrapper";
 
 export default function CreateOrderPage() {
@@ -14,7 +14,7 @@ export default function CreateOrderPage() {
         <Breadcrumb.Item>Create</Breadcrumb.Item>
       </Breadcrumb>
       <Wrapper>
-        <OrderForm
+        <CreateOrderForm
           onFormSubmit={(data) => {
             console.log(data);
           }}

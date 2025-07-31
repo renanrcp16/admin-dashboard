@@ -1,33 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { TOrderSchema } from "@/schemas/order.schema";
+import { orderSchema, TOrderSchema } from "@/schemas/order.schema";
 
-export async function updateOrder(
-  id: number,
-  data: TOrderSchema
-): Promise<void> {
-  const existingOrder = await prisma.order.findUnique({
-    where: { id },
-    include: { items: true },
-  });
-
-  if (!existingOrder) {
-    throw new Error("Order not found");
-  }
-
-  await Promise.all(
-    existingOrder.items.map((item) =>
-      prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          stock: {
-            increment: item.qty,
-          },
-        },
-      })
-    )
-  );
+export async function createOrder(order: TOrderSchema) {
+  const data: TOrderSchema = orderSchema.parse(order);
 
   for (const item of data.items) {
     const product = await prisma.product.findUnique({
@@ -46,12 +23,7 @@ export async function updateOrder(
     }
   }
 
-  await prisma.orderItem.deleteMany({
-    where: { orderId: id },
-  });
-
-  await prisma.order.update({
-    where: { id },
+  const createdOrder = await prisma.order.create({
     data: {
       customerId: data.customerId,
       date: data.date,
@@ -60,7 +32,6 @@ export async function updateOrder(
           productId: item.productId,
           qty: item.qty,
           price: item.price,
-          total: item.total,
         })),
       },
     },
@@ -78,4 +49,6 @@ export async function updateOrder(
       })
     )
   );
+
+  return createdOrder;
 }
